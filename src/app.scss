@@ -2,6 +2,14 @@ $primary: #646cff;
 $primaryDark: #535bf2;
 $disabled: #8d8d8d;
 
+.error {
+    width: 100vw;
+    text-align: center;
+    font-size: 3rem;
+    font-weight: bolder;
+    color: $primary;
+}
+
 form {
     display: flex;
     width: 100vw;

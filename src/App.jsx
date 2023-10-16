@@ -30,21 +30,27 @@ const App = () => {
   const [text, setText] = useState()
   const [result, setResult] = useState()
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const onSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
 
     evaluate({ input: text }).then((response) => {
-      response.data['major'] = getMajorSentiment(response.data.sentimentos)
-      setResult(response.data)
       setIsLoading(false)
+      if (response.status === 'error') {
+        setError(response.data)
+      } else {
+        response.data['major'] = getMajorSentiment(response.data.sentimentos)
+        setResult(response.data)
+      }
     })
   }
 
   const clearAll = () => {
     setResult(null)
     setText(null)
+    setError('')
   }
 
   const onChange = (e) => {
@@ -94,13 +100,19 @@ _API desenvolvida por alunos do grupo 13 GTI Fiap_.
 
   return (
     <>
-      { !result &&
+      { (!result && error === '') &&
         <form onSubmit={onSubmit}>
           <textarea value={text} onChange={onChange} required></textarea>
           { isLoading ? <div className="lds-dual-ring"></div> : <button>Avaliar</button> }
         </form>
       }
-      { result &&
+      { error !== '' &&
+        <div className="error">
+          {error}
+          <div>Por favor, recarregue a página.</div>
+        </div>
+      }
+      { result && error === '' &&
         <>
           <div className="buttons">
             <button className="reload" onClick={() => clearAll()}><ReplayRounded /></button>
