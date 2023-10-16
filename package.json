@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://heliubiancardi.github.io/fiap-challenge/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
