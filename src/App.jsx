@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import './app.scss'
 import { evaluate } from './services'
-import Mock from './mock.json'
-import { ReplayRounded, SendRounded, SentimentDissatisfiedRounded, SentimentNeutralRounded, SentimentVerySatisfiedRounded } from '@mui/icons-material';
+import { ReplayRounded, SendRounded, SentimentDissatisfiedRounded, SentimentNeutralRounded, SentimentVerySatisfiedRounded } from '@mui/icons-material'
 
 const colors = {
   'positivo': '#27625c',
@@ -35,7 +34,6 @@ const App = () => {
   const onSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
-    Mock['major'] = getMajorSentiment(Mock.sentimentos)
 
     evaluate({ input: text }).then((response) => {
       response.data['major'] = getMajorSentiment(response.data.sentimentos)
@@ -78,15 +76,16 @@ ${result.temasSugeridos.map(tema => "* " + tema).join("\n")}
 
 
 _API desenvolvida por alunos do grupo 13 GTI Fiap_.
-    `;
-
-    const whatsappURL = "https://web.whatsapp.com/send?text=" + encodeURIComponent(message);
-    window.open(whatsappURL, '_blank');
+    `
+    const width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+    const url = width > 768 ? 'https://web.whatsapp.com/send?text=' : 'whatsapp://send?text='
+    const whatsappURL = url + encodeURIComponent(message)
+    window.open(whatsappURL, '_blank')
   }
 
   const getMajorSentiment = (feelings) => {
     return feelings.reduce((accumulator, feeling) => {
-      return feeling.percent > accumulator.percent ? feeling : accumulator
+      return parseInt(feeling.percent) > parseInt(accumulator.percent) ? feeling : accumulator
     }, {
       'sentiment': 'Nenhum',
       'percent': '0'
@@ -102,65 +101,69 @@ _API desenvolvida por alunos do grupo 13 GTI Fiap_.
         </form>
       }
       { result &&
-        <div className="result">
-          <button className="reload" onClick={() => clearAll()}><ReplayRounded /></button>
-          <button className="share" onClick={() => share()}><SendRounded /></button>
-          <div className="sentiment">
-            <h3 className="title">Sentimento</h3>
-            <div className="content">
-              <div className="major">
-                {sentimentConfig[result.major.sentiment.toLowerCase()].icon}
-                <div className="description">
-                  Sentimento predominante: <div style={{ color: sentimentConfig[result.major.sentiment.toLowerCase()].color }}>{result.major.sentiment.toUpperCase()}</div>
+        <>
+          <div className="buttons">
+            <button className="reload" onClick={() => clearAll()}><ReplayRounded /></button>
+            <button className="share" onClick={() => share()}><SendRounded /></button>
+          </div>
+          <div className="result">
+            <div className="sentiment">
+              <h3 className="title">Sentimento</h3>
+              <div className="content">
+                <div className="major">
+                  {sentimentConfig[result.major.sentiment.toLowerCase()].icon}
+                  <div className="description">
+                    Sentimento predominante: <div style={{ color: sentimentConfig[result.major.sentiment.toLowerCase()].color }}>{result.major.sentiment.toUpperCase()}</div>
+                  </div>
+                </div>
+                <div className="feelings">
+                  <ul>
+                    {
+                      orderedFeelings.map((orderedFeeling) => {
+                        const feeling = result.sentimentos.find(x => x.sentiment.toLowerCase() === orderedFeeling)
+                        return (
+                          <li key={orderedFeeling}>
+                            {sentimentConfig[orderedFeeling].icon}
+                            <div className="bar" style={{ width: `${feeling?.percent ?? 0}%`, backgroundColor: sentimentConfig[orderedFeeling].color }}>
+                              {orderedFeeling.toUpperCase()}
+                            </div>
+                            <div className="percent" style={{ color: sentimentConfig[orderedFeeling].color }}>{feeling?.percent ?? 0}%</div>
+                          </li>
+                        )
+                      })
+                    }
+                  </ul>
                 </div>
               </div>
-              <div className="feelings">
+            </div>
+            <div className="text">
+              <h3 className="title">Texto Analisado</h3>
+              <p className="content">
+                {text}
+              </p>
+              <div className="key-terms">
+                <div className="title">Principais Termos</div>
                 <ul>
                   {
-                    orderedFeelings.map((orderedFeeling) => {
-                      const feeling = result.sentimentos.find(x => x.sentiment.toLowerCase() === orderedFeeling)
-                      return (
-                        <li key={orderedFeeling}>
-                          {sentimentConfig[orderedFeeling].icon}
-                          <div className="bar" style={{ width: `${feeling?.percent ?? 0}%`, backgroundColor: sentimentConfig[orderedFeeling].color }}>
-                            {orderedFeeling.toUpperCase()}
-                          </div>
-                          <div className="percent" style={{ color: sentimentConfig[orderedFeeling].color }}>{feeling?.percent ?? 0}%</div>
-                        </li>
-                      )
-                    })
+                    result.principaisTermos.map((term) => (
+                      <li key={term}>{term}</li>
+                    ))
+                  }
+                </ul>
+              </div>
+              <div className="suggested-topics">
+                <h4 className="title">Temas Sugeridos</h4>
+                <ul>
+                  {
+                    result.temasSugeridos.map((term) => (
+                      <li key={term}>{term}</li>
+                    ))
                   }
                 </ul>
               </div>
             </div>
           </div>
-          <div className="text">
-            <h3 className="title">Texto Analisado</h3>
-            <p className="content">
-              {text}
-            </p>
-            <div className="key-terms">
-              <div className="title">Principais Termos</div>
-              <ul>
-                {
-                  result.principaisTermos.map((term) => (
-                    <li key={term}>{term}</li>
-                  ))
-                }
-              </ul>
-            </div>
-            <div className="suggested-topics">
-              <h4 className="title">Temas Sugeridos</h4>
-              <ul>
-                {
-                  result.temasSugeridos.map((term) => (
-                    <li key={term}>{term}</li>
-                  ))
-                }
-              </ul>
-            </div>
-          </div>
-        </div>
+        </>
       }
     </>
   )

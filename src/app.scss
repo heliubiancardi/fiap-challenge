@@ -35,31 +35,30 @@ form {
     }
 }
 
-.result {
+.buttons {
     display: flex;
     width: 100%;
+    justify-content: flex-end;
+    position: absolute;
+    top: 0;
+    font-size: 1rem;
+
+    &:focus {
+        outline: none;
+        background-color: $primaryDark;
+    }
+
+    > * {
+        margin: 0.2rem;
+    }
+}
+
+.result {
+    display: flex;
+    width: 100vw;
     padding: 0 4rem;
     box-sizing: border-box;
     justify-content: space-between;
-
-    button {
-        position: absolute;
-        margin: 2rem;
-        top: 0;
-
-        &:focus {
-            outline: none;
-            background-color: $primaryDark;
-        }
-
-        &.share {
-            right: 5rem
-        }
-
-        &.reload {
-            right: 0;
-        }
-    }
 
     .title {
         color: $disabled;
@@ -67,8 +66,8 @@ form {
     }
 
     .sentiment {
-        min-width: 50%;
-        padding: 2rem;
+        flex: 1;
+        padding-right: 2rem;
 
         .content {
             display: flex;
@@ -124,6 +123,8 @@ form {
     }
 
     .text {
+        flex: 1;
+
         .content {
             padding: .5rem 1rem;
             max-width: 90%;
@@ -139,6 +140,9 @@ form {
                 margin-top: 0.7rem;
                 padding: 0;
                 display: flex;
+                overflow: scroll;
+                max-width: 90%;
+                padding-bottom: 1rem;
 
                 li {
                     font-size: 0.7rem;
@@ -147,6 +151,7 @@ form {
                     padding: 0.2rem 0.8rem;
                     border: 0.1rem solid $primary;
                     border-radius: 1rem;
+                    white-space: nowrap;
 
                     &:hover {
                         border-color: $primaryDark;
@@ -185,6 +190,16 @@ form {
                     }
                 }
             }
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        flex-direction: column;
+        padding: 0 1rem;
+
+        &>.sentiment .content {
+            flex-direction: column;
+            align-items: center;
         }
     }
 }
